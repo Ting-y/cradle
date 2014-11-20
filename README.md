@@ -135,6 +135,27 @@ Cradle is also able to fetch multiple documents if you have a list of ids, just 
       });
   });
 ```
+since ```forEach``` that using by res has been override(read more in ```/lib/cradle/response.js```)
+
+so each doc will looks like this 
+``` js
+  {doc._id: 'luke', doc.force:'something'}
+```
+instead using raw response from couch
+``` js
+  {doc._id : 'luke', 
+  doc.key: 'luke',
+  doc.value: null,
+  doc:{
+    _id:'luke',
+    _rev:'1-1234342342342342343124123abefff',
+    name: 'luke',
+    force:'lightning'
+    }
+  }
+```
+If you want to use raw response from couch for some reason
+```for(var i in res)``` to get each doc
 
 You can access the key and value of the response with forEach using two parameters. An optional third parameter will return the id like this example.
 
