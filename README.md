@@ -83,7 +83,9 @@ Note that you can also use `cradle.setup` to set a global configuration:
 
 ``` js
   var db = c.database('starwars');
-  db.create();
+  db.create(function(err){
+    /* do something if there's an error */
+  });
 ```
 
 #### checking for database existence ####
@@ -184,7 +186,7 @@ Lets suppose that you have a design document that you've created:
   db.save('_design/user', {
     views: {
       byUsername: {
-        map: 'function (doc) { if (doc.resource === 'User') { emit(doc.username, doc) } }'
+        map: 'function (doc) { if (doc.resource === "User") { emit(doc.username, doc) } }'
       }
     }
   });
@@ -362,7 +364,7 @@ when saving a design document, cradle guesses you want to create a view, mention
     validate_doc_update:
       function (newDoc, oldDoc, usrCtx) {
         if (! /^(light|dark|neutral)$/.test(newDoc.force))
-          throw { error: "invalid value", reason:"force must be dark, light, or neutral" }
+          throw({forbidden: {error: "invalid value", reason: "force must be dark, light, or neutral"}})
       }
     }
   });
@@ -378,8 +380,17 @@ To remove a document, you call the `remove()` method, passing the latest documen
   });
 ```
 
-
 If `remove` is called without a revision, and the document was recently fetched from the database, it will attempt to use the cached document's revision, providing caching is enabled.
+
+### update handlers ###
+
+Update handlers can be used by calling the `update()` method, specifying the update handler name, and optionally the document id, the query object and the document body object. Only the update handler name is a required function parameter. Note that CouchDB is able to parse query options only if the URI-encoded length is less than 8197 characters. Use the body parameter for larger objects.
+
+``` js
+  db.update('my_designdoc/update_handler_name', 'luke', undefined, { my_param: false }, function (err, res) {
+      // Handle the response, specified by the update handler
+  });
+```
 
 Connecting with authentication and SSL
 --------------------------------------
